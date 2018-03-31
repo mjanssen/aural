@@ -1,10 +1,11 @@
 {
   "name": "aural",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "The zero-dependency audio manager for your Javascript projects.",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "rollup -i ./src/index.js -o ./dist/index.js -f cjs -c rollup.config.js && gzip-size ./dist/index.js"
+    "build": "rollup -i ./src/index.js -o ./dist/index.js -f cjs -c rollup.config.js && gzip-size ./dist/index.js",
+    "watch": "rollup -w -i ./src/index.js -o ./dist/index.js -f cjs -c rollup.config.js && gzip-size ./dist/index.js"
   },
   "repository": {
     "type": "git",
