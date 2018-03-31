@@ -77,7 +77,7 @@ Aural.setRate(key, rate);
 ```
 
 # Demo
-
+Code demo [can be found here](https://stackblitz.com/edit/aural)
 
 # License
 
