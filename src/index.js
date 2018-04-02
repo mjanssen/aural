@@ -16,7 +16,7 @@ class Aural {
    * @param {audioBuffer} buffer
    * @param {object} options
    */
-  newBufferSource(key, buffer = false, options) {
+  newBufferSource(key, buffer = false, options = {}) {
     if (buffer === false) {
       return null;
     }
