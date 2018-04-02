@@ -5,7 +5,7 @@ The __zero-dependency__ ~_700B_ audio manager for your Javascript projects.
 # Install
 
 ```
-$ npm install --save aural
+npm install --save aural
 ```
 
 # Usage
@@ -13,19 +13,19 @@ $ npm install --save aural
 Pass a path to your audio file to the `load` function.
 
 ```
-Aural.load('music', '/path/to/file.mp3', options );
+Aural.load('music', '/path/to/file.mp3', options);
 ```
 
 # Options
 
-_Options are optional_
+_Options are not required_
 
 ```
 {
-  loop: 1, // Loops the audio file
-  rate: 1, // Sets the rate of the audio file
-  autoPlay: 1, // Starts playing the file when loaded
-  frequencyDivider: 128, // Automatically devide the frequency by given number (default 128)
+  loop: 1, // Loops the audio file [default 0]
+  rate: 1, // Sets the rate of the audio file [default 1]
+  autoPlay: 1, // Starts playing the file when loaded [default 0]
+  frequencyDivider: 128, // Automatically devide the frequency by given number [default 128]
 }
 ```
 
@@ -36,20 +36,22 @@ The `load` function returns a promise with a audio object.
 
 # Api Aural load result
 ```
-// Play sound
-sound.play();
+Aural.load(key, source, options).then(sound => {
+  // Play sound
+  sound.play();
 
-// Pause sound
-sound.pause();
+  // Pause sound
+  sound.pause();
 
-// Stop playing sound
-sound.stop();
+  // Stop playing sound
+  sound.stop();
 
-// Get frequency of sound
-sound.getFrequency();
+  // Get frequency of sound
+  sound.getFrequency();
 
-// Set rate of sound
-sound.setRate(rate);
+  // Set rate of sound
+  sound.setRate(rate);
+});
 ```
 
 # Api Aural
