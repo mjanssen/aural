@@ -28,7 +28,7 @@ class Aural {
      * @param {string} key
      */
     this.play = function(key) {
-      this.setRate({ key, rate: this.sources[key].options.rate, isPlaying: true });
+      this.updateRate({ key, rate: this.sources[key].options.rate, isPlaying: true });
     }.bind(this);
 
     /**
@@ -36,8 +36,17 @@ class Aural {
      * @param {string} key
      */
     this.pause = function(key) {
-      this.setRate({ key, rate: 0, isPlaying: false });
+      this.updateRate({ key, rate: 0, isPlaying: false });
     }.bind(this);
+
+    /**
+     * Update the rate for audio file
+     * @param {string} key
+     * @param {int} rate
+     */
+    this.setRate = function(key, rate) {
+      this.updateRate({ key, rate });
+    };
   }
 
   /**
@@ -97,7 +106,7 @@ class Aural {
     this.sources[key].unmute = (volume = 1) => this.setVolume(key, volume);
     this.sources[key].volume = (volume = 1) => this.setVolume(key, volume);
 
-    this.sources[key].setRate = rate => this.setRate({ key, rate }, true);
+    this.sources[key].setRate = rate => this.updateRate({ key, rate }, true);
 
     if (options.onLoad) {
       options.onLoad(this.sources[key]);
@@ -168,7 +177,7 @@ class Aural {
    * @param {object} options
    * @param {bool} updateOptions
    */
-  setRate(options, updateOptions = false) {
+  updateRate(options, updateOptions = false) {
     if (options.key && typeof this.sources[options.key] !== 'undefined') {
       updateOptions && (this.sources[options.key].options.rate = options.rate);
       this.sources[options.key].audio.playbackRate.value = options.rate;
