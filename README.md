@@ -1,6 +1,6 @@
 # Aural
 
-The __zero-dependency__ ~_700B_ audio manager for your Javascript projects.
+The __zero-dependency__ ~_900B_ audio manager for your Javascript projects.
 
 # Install
 
