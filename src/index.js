@@ -178,7 +178,7 @@ class Aural {
       );
       return (
         this.sources[key].audio.analyzer.dataArray.reduce(reducer) /
-        (this.sources[key].options.frequencyDevider || 128)
+        (this.sources[key].options.frequencyDivider || 128)
       );
     }
 
