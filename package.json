@@ -1,6 +1,6 @@
 {
   "name": "aural",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "The zero-dependency audio manager for your Javascript projects.",
   "main": "./dist/index.js",
   "scripts": {
