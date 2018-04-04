@@ -108,12 +108,20 @@ class Aural {
 
   /**
    * Fetch the source file and parse the buffer, passing it to newBufferSource()
+   * Resolve with promise because Safari can't
    * @param {string} source
    */
   getBuffer(source) {
     return fetch(source)
       .then(result => result.arrayBuffer())
-      .then(arrayBuffer => this.context.decodeAudioData(arrayBuffer, buffer => buffer));
+      .then(
+        arrayBuffer =>
+          new Promise(resolve => {
+            this.context.decodeAudioData(arrayBuffer, buffer => {
+              resolve(buffer);
+            });
+          })
+      );
   }
 
   /**
