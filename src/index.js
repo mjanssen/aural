@@ -8,6 +8,36 @@ class Aural {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     this.context = new AudioContext();
     this.sources = {};
+
+    /*
+    * Mute all available sounds
+    */
+    this.muteAll = function() {
+      Object.keys(this.sources).forEach(key => this.setVolume(key, 0));
+    }.bind(this);
+
+    /*
+    * Unmute all available sounds
+    */
+    this.unmuteAll = function(volume = 1) {
+      Object.keys(this.sources).forEach(key => this.setVolume(key, volume));
+    }.bind(this);
+
+    /**
+     * Play audio file
+     * @param {string} key
+     */
+    this.play = function(key) {
+      this.setRate({ key, rate: this.sources[key].options.rate, isPlaying: true });
+    }.bind(this);
+
+    /**
+     * Pause audio file
+     * @param {string} key
+     */
+    this.pause = function(key) {
+      this.setRate({ key, rate: 0, isPlaying: false });
+    }.bind(this);
   }
 
   /**
@@ -35,8 +65,11 @@ class Aural {
       dataArray: null,
     };
 
+    this.sources[key].audio.gainNode = this.context.createGain();
+
     this.sources[key].audio.connect(this.sources[key].audio.analyzer.node);
-    this.sources[key].audio.analyzer.node.connect(this.context.destination);
+    this.sources[key].audio.analyzer.node.connect(this.sources[key].audio.gainNode);
+    this.sources[key].audio.gainNode.connect(this.context.destination);
     this.sources[key].audio.playbackRate.value = 0;
 
     this.sources[key].audio.analyzer.bufferLength = this.sources[
@@ -49,6 +82,8 @@ class Aural {
 
     this.sources[key].audio.start(0);
 
+    this.sources[key].audio.gainNode.gain.value = options.volume || 1;
+
     if (options.autoPlay) {
       this.sources[key].isPlaying = true;
       this.sources[key].audio.playbackRate.value = options.rate || 1.0;
@@ -58,6 +93,10 @@ class Aural {
     this.sources[key].play = () => this.play(key);
     this.sources[key].pause = () => this.pause(key);
     this.sources[key].stop = () => this.stop(key);
+    this.sources[key].mute = () => this.setVolume(key, 0);
+    this.sources[key].unmute = (volume = 1) => this.setVolume(key, volume);
+    this.sources[key].volume = (volume = 1) => this.setVolume(key, volume);
+
     this.sources[key].setRate = rate => this.setRate({ key, rate }, true);
 
     if (options.onLoad) {
@@ -87,21 +126,19 @@ class Aural {
     return this.getBuffer(source).then(buffer => this.newBufferSource(key, buffer, options));
   }
 
-  /**
-   * Play audio file
-   * @param {string} key
-   */
-  play(key) {
-    this.setRate({ key, rate: this.sources[key].options.rate, isPlaying: true });
-  }
+  mute = key => {
+    this.setVolume(key, 0);
+  };
 
-  /**
-   * Pause audio file
-   * @param {string} key
-   */
-  pause(key) {
-    this.setRate({ key, rate: 0, isPlaying: false });
-  }
+  unmute = (key, volume = 1) => {
+    this.setVolume(key, volume);
+  };
+
+  setVolume = (key, volume) => {
+    if (typeof this.sources[key] !== 'undefined') {
+      this.sources[key].audio.gainNode.gain.value = volume;
+    }
+  };
 
   /**
    * Stop audio file
