@@ -28,7 +28,7 @@ class Aural {
      * @param {string} key
      */
     this.play = function(key) {
-      this.updateRate({ key, rate: this.sources[key].options.rate, isPlaying: true });
+      this.updateRate({ key, rate: this.sources[key].options.rate || 1, isPlaying: true });
     }.bind(this);
 
     /**
