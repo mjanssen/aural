@@ -74,6 +74,8 @@ class Aural {
       dataArray: null,
     };
 
+    this.sources[key].audio.loop = options.loop || 0;
+
     this.sources[key].audio.gainNode = this.context.createGain();
 
     this.sources[key].audio.connect(this.sources[key].audio.analyzer.node);
