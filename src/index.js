@@ -91,7 +91,7 @@ class Aural {
       this.sources[key].audio.analyzer.bufferLength
     );
 
-    this.sources[key].audio.start(0);
+    this.sources[key].audio.start(0, options.startAt || 0);
 
     this.sources[key].audio.gainNode.gain.value = options.volume || 1;
 

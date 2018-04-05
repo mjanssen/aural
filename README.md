@@ -27,6 +27,7 @@ _Options are not required_
   autoPlay: 1, // Starts playing the file when loaded [default 0]
   volume: 1, // Sets the volume for the sound [default 1]
   frequencyDivider: 128, // Automatically devide the frequency by given number [default 128]
+  startAt: 0, // Start playing audio from a certain second [default 0]
 }
 ```
 
