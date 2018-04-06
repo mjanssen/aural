@@ -6,21 +6,21 @@ const reducer = (accumulator, currentValue) => accumulator + currentValue;
 class Aural {
   constructor() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
-    this.context = new AudioContext();
-    this.sources = {};
+    this._context = new AudioContext();
+    this._sources = {};
 
     /*
     * Mute all available sounds
     */
     this.muteAll = function() {
-      Object.keys(this.sources).forEach(key => this.setVolume(key, 0));
+      Object.keys(this._sources).forEach(key => this.setVolume(key, 0));
     }.bind(this);
 
     /*
     * Unmute all available sounds
     */
     this.unmuteAll = function(volume = 1) {
-      Object.keys(this.sources).forEach(key => this.setVolume(key, volume));
+      Object.keys(this._sources).forEach(key => this.setVolume(key, volume));
     }.bind(this);
 
     /**
@@ -28,7 +28,7 @@ class Aural {
      * @param {string} key
      */
     this.play = function(key) {
-      this.updateRate({ key, rate: this.sources[key].options.rate || 1, isPlaying: true });
+      this._updateRate({ key, rate: this._sources[key].options.rate || 1, isPlaying: true });
     }.bind(this);
 
     /**
@@ -36,7 +36,7 @@ class Aural {
      * @param {string} key
      */
     this.pause = function(key) {
-      this.updateRate({ key, rate: 0, isPlaying: false });
+      this._updateRate({ key, rate: 0, isPlaying: false });
     }.bind(this);
 
     /**
@@ -45,7 +45,7 @@ class Aural {
      * @param {int} rate
      */
     this.setRate = function(key, rate) {
-      this.updateRate({ key, rate });
+      this._updateRate({ key, rate });
     };
   }
 
@@ -55,66 +55,66 @@ class Aural {
    * @param {audioBuffer} buffer
    * @param {object} options
    */
-  newBufferSource(key, buffer = false, options = {}) {
+  _newBufferSource(key, buffer = false, options = {}) {
     if (buffer === false) {
       return null;
     }
 
-    this.sources[key] = {};
+    this._sources[key] = {};
 
-    this.sources[key].options = options;
-    this.sources[key].isPlaying = false;
+    const audioObject = this._sources[key];
 
-    this.sources[key].audio = this.context.createBufferSource();
+    audioObject.options = options;
+    audioObject.isPlaying = false;
 
-    this.sources[key].audio.buffer = buffer;
-    this.sources[key].audio.analyzer = {
-      node: this.context.createAnalyser(),
+    audioObject.audio = this._context.createBufferSource();
+
+    audioObject.audio.buffer = buffer;
+    audioObject.audio.analyzer = {
+      node: this._context.createAnalyser(),
       bufferLength: null,
       dataArray: null,
     };
 
-    this.sources[key].audio.loop = options.loop || 0;
+    audioObject.audio.loop = options.loop || 0;
 
-    this.sources[key].audio.gainNode = this.context.createGain();
+    audioObject.audio.gainNode = this._context.createGain();
 
-    this.sources[key].audio.connect(this.sources[key].audio.analyzer.node);
-    this.sources[key].audio.analyzer.node.connect(this.sources[key].audio.gainNode);
-    this.sources[key].audio.gainNode.connect(this.context.destination);
-    this.sources[key].audio.playbackRate.value = 0;
+    audioObject.audio.connect(audioObject.audio.analyzer.node);
+    audioObject.audio.analyzer.node.connect(audioObject.audio.gainNode);
+    audioObject.audio.gainNode.connect(this._context.destination);
+    audioObject.audio.playbackRate.value = 0;
 
-    this.sources[key].audio.analyzer.bufferLength = this.sources[
+    audioObject.audio.analyzer.bufferLength = this._sources[
       key
     ].audio.analyzer.node.frequencyBinCount;
 
-    this.sources[key].audio.analyzer.dataArray = new Uint8Array(
-      this.sources[key].audio.analyzer.bufferLength
-    );
+    audioObject.audio.analyzer.dataArray = new Uint8Array(audioObject.audio.analyzer.bufferLength);
 
-    this.sources[key].audio.start(0, options.startAt || 0);
+    audioObject.audio.start(0, options.startAt || 0);
 
-    this.sources[key].audio.gainNode.gain.value = options.volume || 1;
+    audioObject.audio.gainNode.gain.value = options.volume || 1;
 
     if (options.autoPlay) {
-      this.sources[key].isPlaying = true;
-      this.sources[key].audio.playbackRate.value = options.rate || 1.0;
+      audioObject.isPlaying = true;
+      audioObject.audio.playbackRate.value = options.rate || 1.0;
     }
 
-    this.sources[key].getFrequency = () => this.getFrequency(key);
-    this.sources[key].play = () => this.play(key);
-    this.sources[key].pause = () => this.pause(key);
-    this.sources[key].stop = () => this.stop(key);
-    this.sources[key].mute = () => this.setVolume(key, 0);
-    this.sources[key].unmute = (volume = 1) => this.setVolume(key, volume);
-    this.sources[key].volume = (volume = 1) => this.setVolume(key, volume);
+    audioObject.getFrequency = () => this.getFrequency(key);
+    audioObject.play = () => this.play(key);
+    audioObject.pause = () => this.pause(key);
+    audioObject.stop = () => this.stop(key);
+    audioObject.mute = () => this.setVolume(key, 0);
+    audioObject.unmute = (volume = 1) => this.setVolume(key, volume);
+    audioObject.volume = (volume = 1) => this.setVolume(key, volume);
 
-    this.sources[key].setRate = rate => this.updateRate({ key, rate }, true);
+    audioObject.setRate = rate => this._updateRate({ key, rate }, true);
 
     if (options.onLoad) {
-      options.onLoad(this.sources[key]);
+      options.onLoad(audioObject);
     }
 
-    return this.sources[key];
+    return audioObject;
   }
 
   /**
@@ -128,7 +128,7 @@ class Aural {
       .then(
         arrayBuffer =>
           new Promise(resolve => {
-            this.context.decodeAudioData(arrayBuffer, buffer => {
+            this._context.decodeAudioData(arrayBuffer, buffer => {
               resolve(buffer);
             });
           })
@@ -142,7 +142,7 @@ class Aural {
    * @param {object} options
    */
   load(key, source, options) {
-    return this.getBuffer(source).then(buffer => this.newBufferSource(key, buffer, options));
+    return this.getBuffer(source).then(buffer => this._newBufferSource(key, buffer, options));
   }
 
   mute = key => {
@@ -154,9 +154,7 @@ class Aural {
   };
 
   setVolume = (key, volume) => {
-    if (typeof this.sources[key] !== 'undefined') {
-      this.sources[key].audio.gainNode.gain.value = volume;
-    }
+    this._sources[key].audio.gainNode.gain.value = volume;
   };
 
   /**
@@ -164,14 +162,12 @@ class Aural {
    * @param {string} key
    */
   stop(key) {
-    if (typeof this.sources[key] !== 'undefined') {
-      this.sources[key].audio.stop();
-      const options = this.sources[key].options;
-      options.autoPlay = 0;
-      const buffer = this.sources[key].audio.buffer;
+    this._sources[key].audio.stop();
+    const options = this._sources[key].options;
+    options.autoPlay = 0;
+    const buffer = this._sources[key].audio.buffer;
 
-      this.newBufferSource(key, buffer, options);
-    }
+    this._newBufferSource(key, buffer, options);
   }
 
   /**
@@ -179,11 +175,9 @@ class Aural {
    * @param {object} options
    * @param {bool} updateOptions
    */
-  updateRate(options, updateOptions = false) {
-    if (options.key && typeof this.sources[options.key] !== 'undefined') {
-      updateOptions && (this.sources[options.key].options.rate = options.rate);
-      this.sources[options.key].audio.playbackRate.value = options.rate;
-    }
+  _updateRate(options, updateOptions = false) {
+    updateOptions && (this._sources[options.key].options.rate = options.rate);
+    this._sources[options.key].audio.playbackRate.value = options.rate;
   }
 
   /**
@@ -191,17 +185,12 @@ class Aural {
    * @param {string} key
    */
   getFrequency(key) {
-    if (typeof this.sources[key] !== 'undefined') {
-      this.sources[key].audio.analyzer.node.getByteFrequencyData(
-        this.sources[key].audio.analyzer.dataArray
-      );
-      return (
-        this.sources[key].audio.analyzer.dataArray.reduce(reducer) /
-        (this.sources[key].options.frequencyDivider || 128)
-      );
-    }
-
-    return 0;
+    const audioObject = this._sources[key];
+    audioObject.audio.analyzer.node.getByteFrequencyData(audioObject.audio.analyzer.dataArray);
+    return (
+      audioObject.audio.analyzer.dataArray.reduce(reducer) /
+      (audioObject.options.frequencyDivider || 128)
+    );
   }
 }
 
