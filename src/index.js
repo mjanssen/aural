@@ -66,6 +66,7 @@ class Aural {
 
     audioObject.options = options;
     audioObject.isPlaying = false;
+    audioObject.started = false;
 
     audioObject.audio = this._context.createBufferSource();
 
@@ -91,7 +92,15 @@ class Aural {
 
     audioObject.audio.analyzer.dataArray = new Uint8Array(audioObject.audio.analyzer.bufferLength);
 
-    audioObject.audio.start(0, options.startAt || 0);
+    const ios = options.ios || false;
+
+    /**
+     * IOS requires special treatment.
+     */
+    if (ios === false) {
+      audioObject.started = true;
+      audioObject.audio.start(0, options.startAt || 0);
+    }
 
     audioObject.audio.gainNode.gain.value = options.volume || 1;
 
@@ -107,6 +116,7 @@ class Aural {
     audioObject.mute = () => this.setVolume(key, 0);
     audioObject.unmute = (volume = 1) => this.setVolume(key, volume);
     audioObject.volume = (volume = 1) => this.setVolume(key, volume);
+    audioObject.start = () => this.start(key);
 
     audioObject.setRate = rate => this._updateRate({ key, rate }, true);
 
@@ -144,6 +154,13 @@ class Aural {
   load(key, source, options) {
     return this.getBuffer(source).then(buffer => this._newBufferSource(key, buffer, options));
   }
+
+  start = key => {
+    this._sources[key].started === false &&
+      this._sources[key].audio.start(0, this._sources[key].options.startAt || 0);
+    this._updateRate({ key, rate: this._sources[key].options.rate || 1 }, true);
+    this._sources[key].started = true;
+  };
 
   mute = key => {
     this.setVolume(key, 0);
