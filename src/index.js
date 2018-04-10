@@ -132,7 +132,7 @@ class Aural {
    * Resolve with promise because Safari can't
    * @param {string} source
    */
-  getBuffer(source) {
+  _getBuffer(source) {
     return fetch(source)
       .then(result => result.arrayBuffer())
       .then(
@@ -152,7 +152,7 @@ class Aural {
    * @param {object} options
    */
   load(key, source, options) {
-    return this.getBuffer(source).then(buffer => this._newBufferSource(key, buffer, options));
+    return this._getBuffer(source).then(buffer => this._newBufferSource(key, buffer, options));
   }
 
   start = key => {
