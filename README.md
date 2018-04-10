@@ -28,6 +28,7 @@ _Options are not required_
   volume: 1, // Sets the volume for the sound [default 1]
   frequencyDivider: 128, // Automatically devide the frequency by given number [default 128]
   startAt: 0, // Start playing audio from a certain second [default 0]
+  ios: 1, // When this boolean is set, music won't be started by default. Call audio.start() afterwards to start playing
 }
 ```
 
@@ -62,6 +63,9 @@ Aural.load(key, source, options).then(sound => {
 
   // Unmute sound
   sound.unmute();
+
+  // Start playing. Preferably use for devices which do not allow starting music without interaction (ios)
+  sound.start();
 });
 ```
 
@@ -93,6 +97,10 @@ Aural.muteAll();
 
 // Unmute all sounds, loaded with Aural
 Aural.unmuteAll();
+
+// Start playing a sound by key.
+// Preferably use for devices which do not allow starting music without interaction (ios)
+Aural.start(key);
 ```
 
 # Demo
