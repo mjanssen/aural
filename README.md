@@ -1,4 +1,6 @@
 # Aural
+[![npm](https://img.shields.io/npm/v/aural.svg)](http://npm.im/aural)
+[![gzip size](http://img.badgesize.io/https://unpkg.com/aural/dist/index.js?compression=gzip)](https://unpkg.com/aural/dist/index.js)
 
 The __zero-dependency__ ~_900B_ audio manager for your Javascript projects.
 
