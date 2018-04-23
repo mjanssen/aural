@@ -28,9 +28,13 @@ class Aural {
      * @param {string} key
      */
     this.play = function(key) {
-      this._possiblyResume().then(() =>
-        this._updateRate({ key, rate: this._sources[key].options.rate || 1 }, true)
-      );
+      this._possiblyResume().then(() => {
+        if (this._sources[key].started === false) {
+          this._startAudio(key);
+        }
+
+        this._updateRate({ key, rate: this._sources[key].options.rate || 1 }, true);
+      });
     }.bind(this);
 
     /**
