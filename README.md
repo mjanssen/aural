@@ -20,7 +20,9 @@ Aural.load('music', '/path/to/file.mp3', options);
 
 ## Mobile and recent browsers
 Will not allow playing audio without user gesture. Make sure to pass the `suspended` option, so the Audiocontext will not automatically start.
-It will automatically resume the audiocontext when you call `start()` on a audio file.
+It will automatically resume the audiocontext when you call `start()` or `play()` on an audio file.
+
+Playing or starting will *always* resume the Audiocontext.
 
 [_Modern browser changelog_](https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio)
 
