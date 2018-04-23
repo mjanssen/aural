@@ -28,7 +28,9 @@ class Aural {
      * @param {string} key
      */
     this.play = function(key) {
-      this._updateRate({ key, rate: this._sources[key].options.rate || 1, isPlaying: true });
+      this._possiblyResume().then(() =>
+        this._updateRate({ key, rate: this._sources[key].options.rate || 1 }, true)
+      );
     }.bind(this);
 
     /**
@@ -36,7 +38,7 @@ class Aural {
      * @param {string} key
      */
     this.pause = function(key) {
-      this._updateRate({ key, rate: 0, isPlaying: false });
+      this._updateRate({ key, rate: 0 }, false);
     }.bind(this);
 
     /**
@@ -159,17 +161,23 @@ class Aural {
 
   _startAudio = key => this._sources[key].audio.start(0, this._sources[key].options.startAt || 0);
 
+  _possiblyResume = callback => {
+    return new Promise(resolve => {
+      if (this._context.state === 'suspended') {
+        return resolve(this._context.resume());
+      }
+
+      resolve();
+    });
+  };
+
   /**
    * Start playing audio file by key
    * @param {string} key
    */
   start = key => {
     if (this._sources[key].started === false) {
-      if (this._context.state === 'suspended') {
-        this._context.resume().then(this._startAudio(key));
-      } else {
-        this._startAudio(key);
-      }
+      this._possiblyResume().then(() => this._startAudio(key));
     }
 
     this._updateRate({ key, rate: this._sources[key].options.rate || 1 }, true);
