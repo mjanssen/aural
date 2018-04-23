@@ -92,12 +92,14 @@ class Aural {
 
     audioObject.audio.analyzer.dataArray = new Uint8Array(audioObject.audio.analyzer.bufferLength);
 
-    const ios = options.ios || false;
+    const suspended = options.suspended || false;
 
     /**
-     * IOS requires special treatment.
+     * If suspended is true, don't start the audio automatically.
+     * This will probably become default for all browsers.
+     * https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio
      */
-    if (ios === false) {
+    if (suspended === false) {
       audioObject.started = true;
       audioObject.audio.start(0, options.startAt || 0);
     }
@@ -155,21 +157,47 @@ class Aural {
     return this._getBuffer(source).then(buffer => this._newBufferSource(key, buffer, options));
   }
 
+  _startAudio = key => this._sources[key].audio.start(0, this._sources[key].options.startAt || 0);
+
+  /**
+   * Start playing audio file by key
+   * @param {string} key
+   */
   start = key => {
-    this._sources[key].started === false &&
-      this._sources[key].audio.start(0, this._sources[key].options.startAt || 0);
+    if (this._sources[key].started === false) {
+      if (this._context.state === 'suspended') {
+        this._context.resume().then(this._startAudio(key));
+      } else {
+        this._startAudio(key);
+      }
+    }
+
     this._updateRate({ key, rate: this._sources[key].options.rate || 1 }, true);
     this._sources[key].started = true;
   };
 
+  /**
+   * Mute audio file by key
+   * @param {string} key
+   */
   mute = key => {
     this.setVolume(key, 0);
   };
 
+  /**
+   * Unmute audio file by key
+   * @param {string} key
+   * @param {int} volume
+   */
   unmute = (key, volume = 1) => {
     this.setVolume(key, volume);
   };
 
+  /**
+   * Set volume of audio file by key
+   * @param {string} key
+   * @param {int} volume
+   */
   setVolume = (key, volume) => {
     this._sources[key].audio.gainNode.gain.value = volume;
   };
