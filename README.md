@@ -18,6 +18,12 @@ Pass a path to your audio file to the `load` function.
 Aural.load('music', '/path/to/file.mp3', options);
 ```
 
+## Mobile and recent browsers
+Will not allow playing audio without user gesture. Make sure to pass the `suspended` option, so the Audiocontext will not automatically start.
+It will automatically resume the audiocontext when you call `start()` on a audio file.
+
+[_Modern browser changelog_](https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio)
+
 # Options
 
 _Options are not required_
@@ -30,7 +36,7 @@ _Options are not required_
   volume: 1, // Sets the volume for the sound [default 1]
   frequencyDivider: 128, // Automatically devide the frequency by given number [default 128]
   startAt: 0, // Start playing audio from a certain second [default 0]
-  ios: 1, // When this boolean is set, music won't be started by default. Call audio.start() afterwards to start playing
+  suspended: 1, // Audiocontext is suspended at first, will resume after starting a song. [default 0]
 }
 ```
 
